@@ -146,9 +146,9 @@ public:
 				}
 
 			}
-			_root->_col = BLANK;
 		}
-		return true;
+		_root->_col = BLANK;
+		return false;
 	}
 	bool Isbalance()
 	{
@@ -158,9 +158,15 @@ public:
 			return true;
 			
 		size_t k = 0;
-		size_t num = IsNum(_root);
-		
-		return _CheckColor(_root)&&_CheckBlankNum(_root,k,num);
+		size_t num = 0;
+		Node* cur = _root;
+		while(cur)
+		{
+			if(cur &&cur->_col == BLANK)
+				num++;
+			cur = cur->_left;
+		}
+		return _CheckColor(_root) && _CheckBlankNum(_root,k,num);
 	}
 
 	void Inorder()
@@ -168,22 +174,49 @@ public:
 		_Inorder(_root);
 		cout<<endl;
 	}
-protected:
-	size_t IsNum(Node* root)
+	void print()
 	{
-		size_t count = 0;
-		Node* cur = root;
-		while(cur)
-		{
-			cur = cur->_left;
-			if(cur && cur->_col == BLANK)
-				count++;
-		}
-		return count;
+		print(_root,hight(_root));
+		cout<<endl<<endl;
 	}
+protected:
+	int hight(Node* root)
+	{
+		if(root == NULL)
+			return 0;
+		return hight(root->_left) > hight(root->_right) ?
+				 hight(root->_left)+1 : hight(root->_right)+1;
+	}
+
+	void print(Node* root,int level)
+	{
+		int i;
+		if(NULL == root)
+			return ;
+		print(root->_right,level+1);
+		for(i=0;i<level;++i)
+			cout<<"    ";
+		cout<<root->_key<<" "<<root->_col<<endl;
+		print(root->_left,level+1);
+	}
+	
+protected:
+	//error : 不能调用函数，否则递归时每次都会改变num的标准 导致检查失败
+//	size_t IsNum(Node* root)
+//	{
+//		size_t count = 0;
+//		Node* cur = root;
+//		while(cur)
+//		{
+//			cur = cur->_left;
+//			if(cur && cur->_col == BLANK)
+//				count++;
+//		}
+//		return count;
+//	}
 	bool _CheckBlankNum(Node* root,size_t k,const size_t num)
 	{
-		if(_root == NULL)
+		if(root == NULL)
 			return true;
 		if(root->_col == BLANK)
 			k++;
@@ -195,7 +228,7 @@ protected:
 	{
 		if(root == NULL)
 			return true;
-		if(root && root->_parent->_col == RED)
+		if(root->_col == RED && root->_parent->_col == RED)
 			return false;
 		return _CheckColor(root->_left) && _CheckColor(root->_right);
 	}
