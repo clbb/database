@@ -108,15 +108,13 @@ void PrintVector(const vector<map<string,int>::iterator> v)
 	vector<map<string,int>::iterator>::const_iterator it = v.begin();
 	while(it != v.end())
 	{
-		cout<<(*it)->second;
+		cout<<(*it)->first<<" "<<(*it)->second<<endl;
 		it++;
 	}
-	cout<<endl;
 }
 string strs[] = {"sort","set","set","hash","sort"};
 //使用map统计每个单词出现的次数
 //找出出现次数最多的前3个
-//思路：查 若在 则插入，不在 则second++
 	struct Compare//降序
 	{
 		bool operator()(map<string,int>::iterator l,map<string,int>::iterator r)
@@ -129,6 +127,7 @@ string strs[] = {"sort","set","set","hash","sort"};
 void Count1(string str[],size_t size)
 {
 	//1
+	//思路：查 若在 则插入，不在 则second++
 	map<string,int> countMap;
 	int count = 0;
 	for(int i = 0; i<size; ++i)
@@ -143,26 +142,38 @@ void Count1(string str[],size_t size)
 	}
 		PrintMap(countMap);
 
-	//2
+	//2 vector
 	//最多前3 vector前三
 	vector<map<string,int>::iterator> v;
 	map<string,int>::iterator countIt = countMap.begin();
 	while(countIt != countMap.end())
 	{
 		v.push_back(countIt);
+		countIt++;
 	}
 	sort(v.begin(),v.end(),Compare());
 	PrintVector(v);
 	
-//	//3
+//	//3 operator[] 
 //	for(int i = 0; i<size; ++i)
 //	{
 //		countMap[str[i]]++;
 //	}
 //		PrintMap(countMap);
+	//用insert的返回值
+	//4	用heap 将map push_heap heap, pop_heap front  
+//	make_heap(countMap.begin(),countMap.end());	
 }
-//用heap
-void Count2(string* str)
+string fruit[] = {"apple","banana","origin","banana","apple_pie","mango","mango","mango"};
+//统计水果出现次数
+void CountPopfruit(string* str,size_t size)
 {
+	map<string,int> countMap;
+	for(int i = 0; i<size; ++i)
+	{
+		countMap[str[i]]++;
+	}
+	PrintMap(countMap);
+//	push_heap(countMap.begin(),countMap.end());
 	
 }
