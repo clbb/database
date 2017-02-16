@@ -140,7 +140,8 @@ void Count1(string str[],size_t size)
 		else
 			countMap.insert(pair<string,int>(str[i],1));//1 表示第一次插入
 	}
-		PrintMap(countMap);
+	//	PrintMap(countMap);
+		cout<<endl;
 
 	//2 vector
 	//最多前3 vector前三
@@ -153,6 +154,7 @@ void Count1(string str[],size_t size)
 	}
 	sort(v.begin(),v.end(),Compare());
 	PrintVector(v);
+	cout<<endl;
 	
 //	//3 operator[] 
 //	for(int i = 0; i<size; ++i)
@@ -162,10 +164,22 @@ void Count1(string str[],size_t size)
 //		PrintMap(countMap);
 	//用insert的返回值
 	//4	用heap 将map push_heap heap, pop_heap front  
-//	make_heap(countMap.begin(),countMap.end());	
+	//string fruit[] = {"apple","banana","origin","origin","banana","apple_pie","mango","mango","mango","mango"};
+	//7
+	//统计水果出现次数 选出大家最喜爱的前3种
+	make_heap(v.begin(),v.end(),Compare());
+
+	cout<<v.size()<<endl;
+	while(v.size() > 3)
+	{	
+		pop_heap(v.begin(),v.end(),Compare());
+		v.pop_back();
+	}
+	cout<<v.size()<<endl;
+	
+	PrintVector(v);
 }
-string fruit[] = {"apple","banana","origin","banana","apple_pie","mango","mango","mango"};
-//统计水果出现次数
+//就是第三种 operator()
 void CountPopfruit(string* str,size_t size)
 {
 	map<string,int> countMap;
@@ -174,6 +188,5 @@ void CountPopfruit(string* str,size_t size)
 		countMap[str[i]]++;
 	}
 	PrintMap(countMap);
-//	push_heap(countMap.begin(),countMap.end());
 	
 }
