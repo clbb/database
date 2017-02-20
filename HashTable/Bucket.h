@@ -176,6 +176,8 @@ void Test()
 	cout<<ht.Find(3)->_kv.first<<endl;
 	ht.Find(22);
 
-	ht.Erase(51);
+	cout<<ht.Erase(51)<<endl;
+	cout<<ht.Erase(1)<<endl;
 	cout<<ht.Find(52)->_kv.first<<endl;
+
 }
