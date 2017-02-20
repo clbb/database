@@ -14,7 +14,33 @@ struct HashNode
 	{}
 };
 
-template<class K,class V>
+template<class K>
+struct __HashFunc
+{
+	size_t operator()(const K& key)
+	{
+		return key;
+	}
+};
+template<>
+struct __HashFunc<string>
+{
+	size_t BKDRHash(const char* str)
+	{
+		register size_t hash = 0;
+		while(*str)
+		{
+			hash = hash * 131 + *str;
+			++str;
+		}
+		return hash;
+	}
+	size_t operator()(const string& s)
+	{
+		return BKDRHash(s.c_str());
+	}
+};
+template<class K,class V,class HashFunc = __HashFunc<K> >
 class HashTable
 {
     typedef HashNode<K,V> Node;
@@ -49,7 +75,7 @@ public:
 		return make_pair(tmp,true);
 	}
 
-	void Swap(HashTable<K,V> ht)
+	void Swap(HashTable<K,V,HashFunc> ht)
 	{
 		_table.swap(ht._table);
 		swap(ht._size,_size);	
@@ -130,7 +156,7 @@ protected:
 		if(_size == _table.size())
 		{
 			size_t newcapacity = _GetPrimeSize();
-			HashTable<K,V> ht;
+			HashTable<K,V,HashFunc> ht;
 			for(int i = 0; i<_table.size(); i++)
 			{
 				Node* cur = _table[i];
@@ -151,7 +177,9 @@ protected:
 	}
 	size_t _HashFunc(const K& key)
 	{
-		return key % _table.size();
+		HashFunc hf;
+		size_t k = hf(key);
+		return k % _table.size();
 	}	
 
  protected:
@@ -173,6 +201,11 @@ void Test()
 	ht.Insert(make_pair(51,2));
 	
 	
+	HashTable<string,string> ht1;
+	ht1.Insert(make_pair("left","左"));
+	ht1.Insert(make_pair("right","右"));
+	cout<<ht1.Find("left")->_kv.first<<" "<<ht1.Find("left")->_kv.second<<endl;
+	
 	cout<<ht.Find(3)->_kv.first<<endl;
 	ht.Find(22);
 
@@ -181,3 +214,5 @@ void Test()
 	cout<<ht.Find(52)->_kv.first<<endl;
 
 }
+	
+	
