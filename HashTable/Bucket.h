@@ -40,10 +40,83 @@ struct __HashFunc<string>
 		return BKDRHash(s.c_str());
 	}
 };
+
+
+template<class K,class V,class HashFunc>
+class HashTable;
+
+//iterator
+template<class K,class V,class Ref,class Ptr>
+struct HashIterator
+{
+	typedef HashNode<K,V> Node;
+	typedef HashIterator<K,V,Ref,Ptr> Self;
+
+	Node* _node;
+	HashTable<K,V,__HashFunc<K> >* _ht; //方便取size
+
+	HashIterator(Node* node,HashTable<K,V,__HashFunc<K> >* ht)
+		:_node(node)
+		,_ht(ht)
+	{}
+
+	Ref operator*()
+	{
+		return _node->_kv;
+	}
+	Ptr operator->()
+	{
+		return &_node->_kv;
+	}
+	Self& operator++()
+	{
+		_node = Next(_node);
+		return *this;
+	}
+	Self operator++(int)//后置
+	{
+		Self tmp(*this);
+		_node = _node->_next;
+		return tmp;
+	}
+	bool operator!=(const Self& s)const
+	{
+		return _node != s._node;
+	}
+protected:
+//	Node* _Prev(Node* node)
+//	{
+//		Node* prev = node;
+//		if()
+//	}
+	Node* _Next(Node* node)
+	{
+		Node* next = node->_next;
+		if(next)
+			return next;
+		else
+		{
+			size_t index = _HashFunc(node->_kv.first)+1;
+			for(;index < _ht->_table.size(); ++index)
+			{
+				next = _ht->_table[index];
+				if(next)
+					return next;
+			}
+			return NULL;
+		}
+	}
+
+};
 template<class K,class V,class HashFunc = __HashFunc<K> >
 class HashTable
 {
     typedef HashNode<K,V> Node;
+public:
+	typedef HashIterator<K,V,pair<K,V>&,pair<K,V>* > Iterator;
+	typedef HashIterator<K,V,const pair<K,V>&,const pair<K,V>* > ConstIterator; 
+	friend  Iterator;
+	friend  ConstIterator;
 public:
 	HashTable()
 		:_size(0)
@@ -54,7 +127,24 @@ public:
 	~HashTable()
 	{}
 
-	pair<Node*,bool> Insert(const pair<K,V>& kv)
+	Iterator Begin()
+	{
+		Node* cur = _table[0];
+		for(int index = 0; index < _table.size(); ++index)
+		{
+			cur = _table[index];
+			if(cur)
+				return Iterator(cur,this);
+		}
+		return Iterator((Node*)NULL,this);
+	}
+
+	Iterator End()
+	{
+		return Iterator((Node*)NULL,this);
+	}
+	
+	pair<Iterator,bool> Insert(const pair<K,V>& kv)
 	{
 		//满
 		_CheckCapacity();
@@ -64,7 +154,7 @@ public:
 		while(cur)
 		{
 			if(cur->_kv.first == kv.first)//防止重复插入
-				return make_pair(cur,false);
+				return make_pair(Iterator(cur,this),false);
 			cur = cur->_next;
 		}
 		//头插
@@ -72,7 +162,7 @@ public:
 		tmp->_next = _table[index];//注意不要操控临时变量
 		_table[index] = tmp;
 		_size++;
-		return make_pair(tmp,true);
+		return make_pair(Iterator(tmp,this),true);
 	}
 
 	void Swap(HashTable<K,V,HashFunc> ht)
@@ -200,18 +290,33 @@ void Test()
 	ht.Insert(make_pair(105,2));
 	ht.Insert(make_pair(51,2));
 	
+//	cout<<ht.Find(3)->_kv.first<<endl;
+//	ht.Find(22);
+
+	HashTable<int,int>::Iterator it = ht.Begin();
+	while(it != ht.End())
+	{
+		cout<<it->first<<" "<<it->second<<endl;
+		it++;
+	} 
 	
+	cout<<"----------------"<<endl;
 	HashTable<string,string> ht1;
 	ht1.Insert(make_pair("left","左"));
 	ht1.Insert(make_pair("right","右"));
 	cout<<ht1.Find("left")->_kv.first<<" "<<ht1.Find("left")->_kv.second<<endl;
 	
-	cout<<ht.Find(3)->_kv.first<<endl;
-	ht.Find(22);
+	
+	HashTable<string,string>::Iterator it1 = ht1.Begin();
+	while(it1 != ht1.End())
+	{
+		cout<<it1->first<<" "<<it1->second<<endl;
+		it1++;
+	} 
 
-	cout<<ht.Erase(51)<<endl;
-	cout<<ht.Erase(1)<<endl;
-	cout<<ht.Find(52)->_kv.first<<endl;
+//	cout<<ht.Erase(51)<<endl;
+//	cout<<ht.Erase(1)<<endl;
+//	cout<<ht.Find(52)->_kv.first<<endl;
 
 }
 	
